@@ -1,35 +1,80 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
-
-interface UpdateUserDto{
-    hashedRefreshToken?: string | null;
-}
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
-    ){}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) {}
 
-    async findByEmail(email:string):Promise<User | undefined>{
-        return this.userRepository.findOne({where: {email}});
+  // 1. Validar Usuario (Login) - Seguridad Real
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+    
+    // Si el usuario no existe, retornamos null (Passport lanzará 401)
+    if (!user) return null;
+
+    // 🔒 BCRYPT: Comparamos la contraseña plana con el hash de la BD
+    const isMatch = await bcrypt.compare(pass, user.password);
+    
+    if (user && isMatch) {
+      // Eliminamos password y refreshToken antes de devolver el usuario
+      const { password, hashedRefreshToken, ...result } = user;
+      return result;
     }
+    
+    return null;
+  }
 
-    async findById(id:number): Promise<User | undefined>{
-      return this.userRepository.findOne({where: {id}})  
-    }
+  // 2. Generar Tokens (JWT)
+  async getTokens(userId: number, email: string) {
+    const payload = { sub: userId, email };
 
-    async create(UserData:Partial<User>): Promise<User>{
-        const newUser = this.userRepository.create(userData);
-        return this.userRepository.save(newUser);
-    }
+    const [accessToken, refreshToken] = await Promise.all([
+      // Access Token (Corta duración)
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+        expiresIn: '15m',
+      }),
+      // Refresh Token (Larga duración)
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: '7d',
+      }),
+    ]);
 
-    async update(id:number,updateData:UpdateUserDto){
-        await this.userRepository.update(id,updateData)
-    }
+    return { accessToken, refreshToken };
+  }
 
-    // dlos dos ultimos me da flojera ir a domir mememem
+  // 3. Hash y Guardado del Refresh Token
+  async updateRefreshTokenHash(userId: number, refreshToken: string) {
+    // 🔒 BCRYPT: Hasheamos el refresh token antes de guardarlo en BD.
+    // Si alguien roba la BD, no tendrá los tokens de sesión activos.
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(refreshToken, salt);
+    
+    await this.usersService.updateRefreshToken(userId, hash);
+  }
+
+  // 4. Registro de Usuario (Nuevo helper para crear usuarios seguros)
+  async register(registerDto: any) { // Define un DTO real aquí
+    // Validar si existe
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
+    if (existingUser) throw new BadRequestException('El usuario ya existe');
+
+    // Hashear password
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(registerDto.password, salt);
+
+    // Crear usuario
+    return this.usersService.create({
+      ...registerDto,
+      password: hashedPassword,
+    });
+  }
 }
