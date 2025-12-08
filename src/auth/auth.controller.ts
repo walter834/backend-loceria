@@ -5,7 +5,8 @@ import {
     Req, 
     Res, 
     HttpStatus, 
-    HttpCode 
+    HttpCode, 
+    Body
 } from '@nestjs/common';
 import type { Request, Response } from 'express'; // 👈 CORREGIDO: Agregado 'type'
 import { AuthService } from './auth.service';
@@ -14,6 +15,11 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+ @Post('register')
+  async register(@Body() registerDto: any) {
+    return this.authService.register(registerDto);
+  }
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)

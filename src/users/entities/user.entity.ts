@@ -12,7 +12,7 @@ export class User{
    @Column()
    password:string;
 
-   @Column({nullable:true})
-   hashedRefreshToken: string | null;
+   @Column({ type: 'varchar', nullable: true })
+    hashedRefreshToken: string | null;
 
 }
