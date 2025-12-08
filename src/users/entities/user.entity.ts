@@ -1,18 +1,21 @@
+import { Exclude } from "class-transformer";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 
-export class User{
+export class User {
     @PrimaryGeneratedColumn()
-    id:number;
+    id: number;
 
-    @Column({unique:true})
-    email:string;
+    @Column({ unique: true })
+    email: string;
 
-   @Column()
-   password:string;
+    @Exclude()
+    @Column()
+    password: string;
 
-   @Column({ type: 'varchar', nullable: true })
+    @Exclude()
+    @Column({ type: 'varchar', nullable: true })
     hashedRefreshToken: string | null;
 
 }
