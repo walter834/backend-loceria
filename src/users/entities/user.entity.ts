@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Role } from "./role.entity";
 
 @Entity('users')
 
@@ -18,4 +19,6 @@ export class User {
     @Column({ type: 'varchar', nullable: true })
     hashedRefreshToken: string | null;
 
+    @ManyToOne(() => Role)
+    role: Role;
 }
