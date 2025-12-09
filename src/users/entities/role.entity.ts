@@ -5,9 +5,9 @@ export class Role{
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({unique:true})
     name:string;
 
     @Column("simple-array")
-    permissions: string[]; // ['user:create', 'user:read', 'sales:create']
+    permissions: string[]; 
 }

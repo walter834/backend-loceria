@@ -1,0 +1,1 @@
+//3.2. Crear el Guard PermissionsGuard Crea el archivo src/auth/guards/permissions.guard.ts:
