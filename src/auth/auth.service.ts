@@ -10,24 +10,24 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   // 1. Validar Usuario (Login) - Seguridad Real
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    
+
     // Si el usuario no existe, retornamos null (Passport lanzará 401)
     if (!user) return null;
 
     // 🔒 BCRYPT: Comparamos la contraseña plana con el hash de la BD
     const isMatch = await bcrypt.compare(pass, user.password);
-    
+
     if (user && isMatch) {
       // Eliminamos password y refreshToken antes de devolver el usuario
       const { password, hashedRefreshToken, ...result } = user;
       return result;
     }
-    
+
     return null;
   }
 
@@ -57,24 +57,42 @@ export class AuthService {
     // Si alguien roba la BD, no tendrá los tokens de sesión activos.
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(refreshToken, salt);
-    
+
     await this.usersService.updateRefreshToken(userId, hash);
   }
 
-  // 4. Registro de Usuario (Nuevo helper para crear usuarios seguros)
-  async register(registerDto: any) { // Define un DTO real aquí
-    // Validar si existe
+  /*   // 4. Registro de Usuario (Nuevo helper para crear usuarios seguros)
+    async register(registerDto: any) { // Define un DTO real aquí
+      // Validar si existe
+      const existingUser = await this.usersService.findByEmail(registerDto.email);
+      if (existingUser) throw new BadRequestException('El usuario ya existe');
+  
+      // Hashear password
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(registerDto.password, salt);
+  
+      // Crear usuario
+      return this.usersService.create({
+        ...registerDto,
+        password: hashedPassword,
+      });
+    } */
+
+  async register(registerDto: any) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) throw new BadRequestException('El usuario ya existe');
 
-    // Hashear password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(registerDto.password, salt);
 
-    // Crear usuario
+    // 👈 NUEVO: Buscar rol por defecto
+    // Necesitarás implementar findRoleByName en UsersService
+    const defaultRole = await this.usersService.findRoleByName('EMPLEADO');
+
     return this.usersService.create({
       ...registerDto,
       password: hashedPassword,
+      role: defaultRole, // Asignamos el rol
     });
   }
 }
