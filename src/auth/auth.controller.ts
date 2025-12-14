@@ -10,13 +10,17 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express'; // 👈 CORREGIDO: Agregado 'type'
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard'; // 👈 Asegúrate de tener este Guard (Passport JWT)
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RequirePermission } from './decorators/require-permission.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
  @Post('register')
+ @UseGuards(JwtAuthGuard,PermissionStatus)
+ @RequirePermission('user:create')
   async register(@Body() registerDto: any) {
     return this.authService.register(registerDto);
   }
