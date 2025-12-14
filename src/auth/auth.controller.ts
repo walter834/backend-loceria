@@ -8,19 +8,20 @@ import {
     HttpCode, 
     Body
 } from '@nestjs/common';
-import type { Request, Response } from 'express'; // 👈 CORREGIDO: Agregado 'type'
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard'; // 👈 Asegúrate de tener este Guard (Passport JWT)
+import { JwtAuthGuard } from './guards/jwt-auth.guard'; // 👈 Ahora sí existe
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RequirePermission } from './decorators/require-permission.decorator';
+import { PermissionsGuard } from './guards/permissions.guard'; // 👈 Importar el guard correcto
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
  @Post('register')
- @UseGuards(JwtAuthGuard,PermissionStatus)
- @RequirePermission('user:create')
+ @UseGuards(JwtAuthGuard,PermissionsGuard)
+ @RequirePermission('users:create')
   async register(@Body() registerDto: any) {
     return this.authService.register(registerDto);
   }
