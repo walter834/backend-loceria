@@ -1,12 +1,13 @@
-import { 
-    Controller, 
-    Post, 
-    UseGuards, 
-    Req, 
-    Res, 
-    HttpStatus, 
-    HttpCode, 
-    Body
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Res,
+  HttpStatus,
+  HttpCode,
+  Body,
+  Patch
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -17,20 +18,28 @@ import { PermissionsGuard } from './guards/permissions.guard'; // 👈 Importar 
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
- @Post('register')
- @UseGuards(JwtAuthGuard,PermissionsGuard)
- @RequirePermission('users:create')
+  @Post('register')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermission('users:create')
   async register(@Body() registerDto: any) {
     return this.authService.register(registerDto);
   }
+  
+  @UseGuards(JwtAuthGuard) // Solo usuarios logueados pueden cambiar su password
+  @Patch('change-password')
+  async changePassword(@Req() req: Request, @Body() body: { password: string }) {
+    const userId = (req.user as any).id;
+    return this.authService.changePassword(userId, body.password);
+  }
+
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(
-    @Req() req: Request, 
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     // 👈 CORREGIDO: Agregamos '!' (req.user!) para decirle a TS que el usuario existe
@@ -48,11 +57,12 @@ export class AuthController {
       sameSite: 'lax', // 👈 CORREGIDO: 'Lax' -> 'lax' (minúscula requerida por el tipo)
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    
+
     await this.authService.updateRefreshTokenHash(userId, tokens.refreshToken);
 
-    return { 
+    return {
       accessToken: tokens.accessToken,
+      user: user
     };
   }
 }

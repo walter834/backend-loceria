@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { Role } from './users/entities/role.entity';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { User } from './users/entities/user.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User],
+        entities: [User,Role],
         // ⚠️ En producción real, 'synchronize' debe ser FALSE. Usar migraciones.
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),

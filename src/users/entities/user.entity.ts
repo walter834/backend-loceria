@@ -19,6 +19,9 @@ export class User {
     @Column({ type: 'varchar', nullable: true })
     hashedRefreshToken: string | null;
 
+    @Column({ default: true }) 
+    mustChangePassword: boolean;
+
     @ManyToOne(() => Role, {eager:true})
     @JoinColumn({ name: 'roleId' })
     role: Role;

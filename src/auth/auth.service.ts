@@ -12,6 +12,18 @@ export class AuthService {
     private configService: ConfigService,
   ) { }
 
+
+  async changePassword(userId: number, newPassword:string){
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await this.usersService.update(userId,{
+      password:hashedPassword,
+      mustChangePassword:false
+    });
+
+    return { message: 'Contraseña actualizada correctamente' };
+  }
   // 1. Validar Usuario (Login) - Seguridad Real
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -95,4 +107,6 @@ export class AuthService {
       role: defaultRole, // Asignamos el rol
     });
   }
+
+  
 }
