@@ -1,7 +1,23 @@
+import { IsNumber, IsString, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+
 export class CreateProductDto {
-    code: string;
-    description: string;
-    purchase_price: number;
-    sale_price: number;
-    url_image: string;
+  @IsString()
+  code: string;
+
+  @IsString()
+  description: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  purchase_price: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  sale_price: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  percentage_gain?: number; // Asegúrate de que coincida con la Entity
 }

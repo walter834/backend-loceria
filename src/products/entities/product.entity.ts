@@ -1,28 +1,31 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('Products')
 export class Product {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({ unique: true })
-    code: string;
+  @Column({ unique: true })
+  code: string;
 
-    @Column()
-    description: string;
+  @Column()
+  description: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
-    purchase_price: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  purchase_price: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
-    sale_price: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  sale_price: number;
 
-    @Column({ nullable: true })
-    url_image: string;
+  @Column({ type: 'float', nullable: true, default: 0 }) // Campo nuevo para el porcentaje
+  percentage_gain: number;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column({ nullable: true })
+  url_image: string;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
