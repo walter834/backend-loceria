@@ -11,26 +11,26 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-  ) {}
+  ) { }
 
-  create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto) {
     const newProduct = this.productRepository.create(createProductDto);
-    return this.productRepository.save(newProduct);
+    return await this.productRepository.save(newProduct);
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll() {
+    return await this.productRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+    return await this.productRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    return await this.productRepository.update(id, updateProductDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    return await this.productRepository.delete(id);
   }
 }
