@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { Role } from './users/entities/role.entity';
 import { ProductsModule } from './products/products.module';
+import { Product } from './products/entities/product.entity';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { ProductsModule } from './products/products.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User,Role],
+        entities: [User,Role,Product],
         // ⚠️ En producción real, 'synchronize' debe ser FALSE. Usar migraciones.
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),

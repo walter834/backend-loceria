@@ -25,13 +25,14 @@ export class UsersSeeder implements OnModuleInit {
         name: 'SUPER_ADMIN',
         permissions: [
           'users:create', 'users:read', 'users:update', 'users:delete',
-          'sales:create', 'sales:read'
+          'sales:create', 'sales:read',
+          'products:create', 'products:read', 'products:update', 'products:delete'
         ],
       },
       {
         name: 'EMPLEADO',
         permissions: [
-          'sales:create', 'sales:read'
+          'sales:create', 'sales:read', 'products:read'
         ],
       },
     ];
