@@ -9,6 +9,7 @@ import { User } from './users/entities/user.entity';
 import { Role } from './users/entities/role.entity';
 import { ProductsModule } from './products/products.module';
 import { Product } from './products/entities/product.entity';
+import { SalesModule } from './sales/sales.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { Product } from './products/entities/product.entity';
     UsersModule,
     AuthModule,
     ProductsModule,
+    SalesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
