@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,8 +14,16 @@ export class ProductsService {
   ) { }
 
   async create(createProductDto: CreateProductDto) {
-    const newProduct = this.productRepository.create(createProductDto);
-    return await this.productRepository.save(newProduct);
+    try {
+      const newProduct = this.productRepository.create(createProductDto);
+      return await this.productRepository.save(newProduct);
+    } catch (error) {
+      // Error 23505 = violación de constraint único en PostgreSQL
+      if (error.code === '23505') {
+        throw new ConflictException('Ya existe un producto con ese código');
+      }
+      throw error; // Si es otro error, lo relanza
+    }
   }
 
   async findAll() {

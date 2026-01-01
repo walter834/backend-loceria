@@ -2,9 +2,11 @@ import { IsNumber, IsString, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {
+  @Type(() => String)  
   @IsString()
   code: string;
 
+  @Type(() => String)  
   @IsString()
   description: string;
 
@@ -19,5 +21,9 @@ export class CreateProductDto {
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  percentage_gain?: number; // Asegúrate de que coincida con la Entity
+  percentage_gain?: number;
+
+  @IsString()
+  @IsOptional()
+  url_image?: string;
 }
